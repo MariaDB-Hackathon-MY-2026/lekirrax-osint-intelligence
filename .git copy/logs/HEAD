@@ -1,9 +1,0 @@
-0000000000000000000000000000000000000000 882ad7e3d36cafc9da8245f3cb2179bd2092e475 devnifyx <you@example.com> 1771774164 +0800	commit (initial): Initial commit
-882ad7e3d36cafc9da8245f3cb2179bd2092e475 882ad7e3d36cafc9da8245f3cb2179bd2092e475 devnifyx <you@example.com> 1771774283 +0800	checkout: moving from main to main
-882ad7e3d36cafc9da8245f3cb2179bd2092e475 0000000000000000000000000000000000000000 devnifyx <you@example.com> 1771774423 +0800	Branch: renamed refs/heads/main to refs/heads/main
-882ad7e3d36cafc9da8245f3cb2179bd2092e475 882ad7e3d36cafc9da8245f3cb2179bd2092e475 devnifyx <you@example.com> 1771774423 +0800	Branch: renamed refs/heads/main to refs/heads/main
-882ad7e3d36cafc9da8245f3cb2179bd2092e475 882ad7e3d36cafc9da8245f3cb2179bd2092e475 devnifyx <you@example.com> 1771774522 +0800	checkout: moving from main to main
-882ad7e3d36cafc9da8245f3cb2179bd2092e475 9f4dc83719b4c79de96f882601f408c721457ee9 devnifyx <you@example.com> 1771774532 +0800	reset: moving to origin/main
-9f4dc83719b4c79de96f882601f408c721457ee9 b30eb4147abce0ac2b71b4d859c94b34f4745225 devnifyx <you@example.com> 1771774646 +0800	commit: Describe your change
-b30eb4147abce0ac2b71b4d859c94b34f4745225 ec073c3e2cf98c57b521c02315a31e7bedf5beb7 devnifyx <mhanifnzm168@gmail.com> 1775651320 +0800	commit: fix(database): increase connection limit and add default host
-ec073c3e2cf98c57b521c02315a31e7bedf5beb7 43e556451c35d795396b5b91a471b0c88e2fd8c2 devnifyx <mhanifnzm168@gmail.com> 1775832820 +0800	commit: refactor(osint): remove artificial delays and add caching layer

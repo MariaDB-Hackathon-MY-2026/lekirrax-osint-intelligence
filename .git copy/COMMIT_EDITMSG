@@ -1,6 +1,0 @@
-refactor(osint): remove artificial delays and add caching layer
-
-- Replace Promise with setTimeout patterns with direct returns in mock modules
-- Add in-memory and database caching to improve response times
-- Include target parameter in module outputs for cache indexing
-- Add performance monitoring to track module execution time
