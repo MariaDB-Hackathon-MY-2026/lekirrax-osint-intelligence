@@ -7,6 +7,8 @@ export class FirecrawlService {
     constructor() {
         if (!process.env.FIRECRAWL_API_KEY) {
             console.warn('⚠️ FIRECRAWL_API_KEY is missing. AI scraping will be disabled.');
+            this.app = null;
+            return;
         }
         this.app = new FirecrawlApp({ apiKey: process.env.FIRECRAWL_API_KEY });
     }
@@ -19,6 +21,9 @@ export class FirecrawlService {
     async scrapeTarget(url) {
         if (!process.env.FIRECRAWL_API_KEY) {
             return { success: false, error: 'No API Key' };
+        }
+        if (!this.app) {
+            return { success: false, error: 'Firecrawl disabled' };
         }
 
         // Ensure URL has protocol

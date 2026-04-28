@@ -4,6 +4,7 @@
   "description": "",
   "main": "server.js",
   "scripts": {
+    "prestart": "node scripts/checkNodeVersion.js",
     "migrate": "node scripts/migrate.js",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -14,6 +15,9 @@
   "author": "",
   "license": "ISC",
   "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
   "dependencies": {
     "@mendable/firecrawl-js": "^4.12.0",
     "bcryptjs": "^3.0.3",
