@@ -193,8 +193,8 @@ FLUSH PRIVILEGES;
 
 1.  **Clone the Repository**
     ```bash
-    git clone https://github.com/devnifyx/LekirraX.git
-    cd LekirraX
+    git clone https://github.com/MariaDB-Hackathon-MY-2026/lekirrax-osint-intelligence.git
+    cd lekirrax-osint-intelligence
     ```
 
 2.  **Install Backend Dependencies**
