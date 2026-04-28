@@ -1,0 +1,136 @@
+.json-viewer {
+    width: 100%;
+}
+
+.json-parse-error {
+    padding: 10px 12px;
+    border: 1px solid rgba(255, 85, 85, 0.35);
+    background: rgba(255, 85, 85, 0.08);
+    color: #ffb3b3;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    font-size: 0.95rem;
+}
+
+.json-tree {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(0, 255, 255, 0.12);
+    border-radius: 12px;
+    padding: 10px;
+}
+
+.json-row {
+    width: 100%;
+}
+
+.json-toggle {
+    width: 100%;
+    text-align: left;
+    background: transparent;
+    border: 0;
+    color: inherit;
+    padding: 6px 8px;
+    border-radius: 10px;
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 0.95rem;
+    line-height: 1.45;
+    cursor: pointer;
+}
+
+.json-toggle--leaf {
+    cursor: default;
+}
+
+.json-toggle:focus-visible {
+    outline: 2px solid rgba(0, 255, 255, 0.55);
+    outline-offset: 2px;
+}
+
+.json-toggle:hover {
+    background: rgba(0, 255, 255, 0.06);
+}
+
+.json-caret {
+    width: 16px;
+    display: inline-flex;
+    justify-content: center;
+    opacity: 0.85;
+    flex: 0 0 16px;
+}
+
+.json-key {
+    color: #61dafb;
+    white-space: nowrap;
+}
+
+.json-colon {
+    opacity: 0.7;
+}
+
+.json-value {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+.json-v-string {
+    color: #9fe6a0;
+}
+
+.json-v-number {
+    color: #f6d365;
+}
+
+.json-v-boolean {
+    color: #ff9bd3;
+}
+
+.json-v-null {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.json-v-object,
+.json-v-array {
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.json-children {
+    margin-top: 2px;
+}
+
+.json-code {
+    width: 100%;
+    max-height: 520px;
+    overflow: auto;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(0, 255, 255, 0.12);
+    border-radius: 12px;
+    padding: 12px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.json-s-key {
+    color: #61dafb;
+}
+
+.json-s-string {
+    color: #9fe6a0;
+}
+
+.json-s-number {
+    color: #f6d365;
+}
+
+.json-s-boolean {
+    color: #ff9bd3;
+}
+
+.json-s-null {
+    color: rgba(255, 255, 255, 0.65);
+}
+

@@ -1,0 +1,76 @@
+openapi: 3.0.0
+info:
+  title: LekirraX API (Partial)
+  version: 1.0.0
+  description: Partial OpenAPI spec for the recommendations/interactions/users endpoints. Other platform endpoints (recon, OSINT, history, threat-map) are implemented in server.js but not described here yet.
+paths:
+  /api/recommendations:
+    get:
+      summary: Get personalized recommendations
+      parameters:
+        - name: userId
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: A list of recommended security items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    score:
+                      type: number
+  /api/interactions:
+    post:
+      summary: Log user interaction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: integer
+                itemId:
+                  type: integer
+                itemType:
+                  type: string
+                  enum: [system, vulnerability]
+                interactionType:
+                  type: string
+                  enum: [view, click, resolve, dismiss, flag]
+      responses:
+        '201':
+          description: Interaction logged successfully
+  /api/users:
+    post:
+      summary: Create a new analyst user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                email:
+                  type: string
+                role:
+                  type: string
+      responses:
+        '201':
+          description: User created successfully

@@ -1,0 +1,233 @@
+.cyber-map-wrapper {
+    position: relative;
+    width: 100%;
+    height: 600px;
+    background: rgba(8, 10, 16, 0.4);
+    border: 1px solid #1a232e;
+    border-radius: 4px;
+    overflow: hidden;
+    font-family: 'JetBrains Mono', monospace;
+    color: #00e5ff;
+}
+
+.grid-overlay {
+    display: none;
+}
+
+.scanline {
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    background: rgba(0, 229, 255, 0.1);
+    box-shadow: 0 0 10px rgba(0, 229, 255, 0.5);
+    animation: scan 4s linear infinite;
+    z-index: 5;
+    pointer-events: none;
+}
+
+@keyframes scan {
+    0% { top: -10%; }
+    100% { top: 110%; }
+}
+
+.terminal-hud {
+    position: absolute;
+    top: 20px;
+    padding: 15px;
+    background: rgba(12, 16, 21, 0.8);
+    border: 1px solid rgba(0, 229, 255, 0.2);
+    font-size: 0.7rem;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.terminal-hud.left { left: 20px; width: 360px; }
+.terminal-hud.right { right: 20px; width: 220px; }
+
+.hud-header {
+    border-bottom: 1px solid rgba(0, 229, 255, 0.3);
+    margin-bottom: 8px;
+    padding-bottom: 4px;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.terminal-line {
+    margin-bottom: 4px;
+    opacity: 0.8;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.stat-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 6px;
+}
+
+.stat-row .value { color: #fff; }
+.stat-row .value.critical { color: #ff0055; text-shadow: 0 0 5px #ff0055; }
+.stat-row .value.high { color: #ffaa00; text-shadow: 0 0 5px rgba(255, 170, 0, 0.75); }
+.stat-row .value.medium { color: #00e5ff; text-shadow: 0 0 5px rgba(0, 229, 255, 0.75); }
+.stat-row .value.low { color: #00ff9d; text-shadow: 0 0 5px rgba(0, 255, 157, 0.6); }
+
+.hacking-map {
+    width: 100%;
+    height: 100%;
+    filter: none;
+    display: block;
+    margin: 0 auto;
+}
+
+.hacking-map-lite {
+    filter: none;
+}
+
+.map-geography {
+    transition: all 0.3s ease;
+    fill-opacity: 1;
+}
+
+.attack-arc {
+    fill: none;
+    stroke-linecap: round;
+    stroke-dasharray: 10, 20;
+    animation: flow 1.5s linear infinite;
+    filter: none;
+}
+
+.attack-arc.glow {
+    filter: drop-shadow(0 0 5px var(--color));
+}
+
+.attack-arc.lite {
+    animation: none;
+    filter: none;
+    stroke-dasharray: none;
+    opacity: 0.7;
+}
+
+@keyframes flow {
+    from { stroke-dashoffset: 30; }
+    to { stroke-dashoffset: 0; }
+}
+
+.pulse-node {
+    animation: pulse 1.5s ease-out infinite;
+}
+
+.pulse-node.lite {
+    animation: none;
+}
+
+@keyframes pulse {
+    0% { r: 1; opacity: 1; }
+    100% { r: 8; opacity: 0; }
+}
+
+.ping-ring {
+    animation: ping 2s ease-out infinite;
+}
+
+.ping-ring.lite {
+    animation: none;
+}
+
+@keyframes ping {
+    0% { r: 4; opacity: 1; }
+    100% { r: 20; opacity: 0; }
+}
+
+.target-marker {
+    cursor: pointer;
+}
+
+.map-footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    background: rgba(12, 16, 21, 0.9);
+    border-top: 1px solid rgba(0, 229, 255, 0.2);
+    display: flex;
+    padding: 10px 20px;
+    font-size: 0.75rem;
+    gap: 30px;
+}
+
+.neon-text {
+    color: #fff;
+    text-shadow: 0 0 5px #00e5ff;
+}
+
+.hacking-loader {
+    width: 100%;
+    height: 600px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: #080a0f;
+}
+
+.glitch {
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    position: relative;
+    text-shadow: 0.05em 0 0 #ff0055, -0.025em -0.05em 0 #00ff9d,
+                 0.025em 0.05em 0 #00e5ff;
+    animation: glitch 500ms infinite;
+}
+
+@keyframes glitch {
+    0% { text-shadow: 0.05em 0 0 #ff0055, -0.025em -0.05em 0 #00ff9d, 0.025em 0.05em 0 #00e5ff; }
+    14% { text-shadow: 0.05em 0 0 #ff0055, -0.025em -0.05em 0 #00ff9d, 0.025em 0.05em 0 #00e5ff; }
+    15% { text-shadow: -0.05em -0.025em 0 #ff0055, 0.025em 0.025em 0 #00ff9d, -0.05em -0.05em 0 #00e5ff; }
+    49% { text-shadow: -0.05em -0.025em 0 #ff0055, 0.025em 0.025em 0 #00ff9d, -0.05em -0.05em 0 #00e5ff; }
+    50% { text-shadow: 0.025em 0.05em 0 #ff0055, 0.05em 0 0 #00ff9d, 0 -0.05em 0 #00e5ff; }
+    99% { text-shadow: 0.025em 0.05em 0 #ff0055, 0.05em 0 0 #00ff9d, 0 -0.05em 0 #00e5ff; }
+    100% { text-shadow: -0.025em 0 0 #ff0055, -0.025em -0.025em 0 #00ff9d, -0.025em -0.05em 0 #00e5ff; }
+}
+
+.progress-bar {
+    width: 200px;
+    height: 4px;
+    background: #1a232e;
+    margin-top: 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 30%;
+    background: #00e5ff;
+    box-shadow: 0 0 10px #00e5ff;
+    animation: load 2s ease-in-out infinite;
+}
+
+@keyframes load {
+    0% { left: -30%; }
+    100% { left: 110%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .scanline,
+    .attack-arc,
+    .pulse-node,
+    .ping-ring,
+    .glitch,
+    .progress-bar::after {
+        animation: none !important;
+    }
+    .attack-arc {
+        filter: none !important;
+    }
+    .hacking-map {
+        filter: none !important;
+    }
+}
