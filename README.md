@@ -3,8 +3,14 @@
 LekirraX is a powerful cybersecurity platform designed for Open Source Intelligence (OSINT) gathering, deep web scanning, and real-time cyber threat visualization. Built with a modern tech stack, it provides security researchers and penetration testers with a comprehensive suite of tools to analyze domains, track digital footprints, and monitor global threat activities.
 
 ![License](https://img.shields.io/badge/license-ISC-blue.svg)
-![Node](https://img.shields.io/badge/node-%3E%3D20-green.svg)
+![Node](https://img.shields.io/badge/node-%3E%3D22.12.0-green.svg)
 ![React](https://img.shields.io/badge/react-18-cyan.svg)
+
+## Author
+
+MUHAMMAD HANIF BIN MOHAMAD NIZAM
+ 
+([@devnifyx](https://github.com/devnifyx))
 
 ## Key Features
 
@@ -29,7 +35,8 @@ LekirraX is a powerful cybersecurity platform designed for Open Source Intellige
 - **Code Hunter**: Scans public repositories for leaked secrets and API keys.
 - **Google Dorking** module that generates curated dorks.
 - **Custom Dork Builder** (build, copy, and launch your own dorks from the OSINT page).
-- OSINT results viewer supports a readable “Pretty” view and a collapsible “Raw JSON” view.
+- OSINT results viewer includes module-specific “Pretty” layouts (Phishing Detection + Email Validation) and a collapsible “Raw JSON” view.
+- History supports deleting saved Web-Check and OSINT entries.
 
 ### AI-Powered Intelligence
 - **Smart Analysis**: Integrates OpenAI, Exa, and Firecrawl for intelligent data correlation and risk assessment.
@@ -171,9 +178,9 @@ LekirraX/
 ## Getting Started
 
 ### Prerequisites
-- Node.js (v18+)
+- Node.js (>= 22.12.0)
 - MariaDB
-- NPM or Yarn
+- npm (>= 10)
 
 ### Database setup (one-time)
 
@@ -193,8 +200,8 @@ FLUSH PRIVILEGES;
 
 1.  **Clone the Repository**
     ```bash
-    git clone https://github.com/MariaDB-Hackathon-MY-2026/lekirrax-osint-intelligence.git
-    cd lekirrax-osint-intelligence
+    git clone https://github.com/devnifyx/LekirraX.git
+    cd LekirraX
     ```
 
 2.  **Install Backend Dependencies**
