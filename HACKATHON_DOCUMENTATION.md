@@ -1,12 +1,14 @@
 # Project Overview
-Project Title: LekirraX - Advanced OSINT & Cyber Threat Intelligence Platform
+Project Title: 
+Lekirrax : An Ai-Driven Osint-Based Cyber Threat Intelligence And Analytics Sentinel System
 
-Team Name: LekirraX
+Team Name: 
+LekirraX
 
 Team Members:
-- Not provided (add names and roles for final hackathon submission)
+- MUHAMMAD HANIF BIN MOHAMAD NIZAM
 
-Project Description:
+Project Description: 
 LekirraX is a full-stack cybersecurity platform for reconnaissance scanning, OSINT enrichment, and analyst-oriented reporting. It lets an operator submit a target (domain/URL), runs a multi-step recon pipeline (DNS/SSL/headers/ports/subdomains/firewall signals), enriches results with OSINT modules, optionally generates an AI executive summary, and persists scan history in MariaDB for later search, review, and export.
 
 Problem solved and relation to the hackathon theme/challenges:
@@ -78,7 +80,7 @@ Future Enhancements:
 
 # Code Repository
 GitHub/Repository Link:
-- https://github.com/devnifyx/LekirraX
+- https://github.com/MariaDB-Hackathon-MY-2026/lekirrax-osint-intelligence.git
 
 Code Documentation:
 - Root README.md documents setup, environment variables, and key routes.

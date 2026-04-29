@@ -1,5 +1,3 @@
-import fetch from 'node-fetch';
-
 const PLATFORMS = {
     Twitter: { url: 'https://x.com/{}', method: 'GET' },
     Facebook: { url: 'https://www.facebook.com/{}', method: 'GET' },
@@ -45,7 +43,17 @@ function classifyChallengeUrl(url) {
 
 async function readHtmlSnippet(response, { maxChars = 65000 } = {}) {
     if (typeof response?.text !== 'function') return '';
-    const full = await response.text().catch(() => '');
+    const body = response?.body;
+    if (body && typeof body.once === 'function') {
+        body.once('error', () => {});
+    } else if (body && typeof body.on === 'function') {
+        body.on('error', () => {});
+    }
+
+    const full = await response.text().catch((e) => {
+        if (e?.name === 'AbortError' || e?.type === 'aborted') return '';
+        return '';
+    });
     return typeof full === 'string' ? full.slice(0, maxChars) : '';
 }
 
@@ -82,25 +90,31 @@ async function sniffNotFound(name, response) {
     return null;
 }
 
-async function checkPlatform(name, config, username) {
+async function checkPlatform(name, config, username, { signal, timeoutMs } = {}) {
     const url = config.url.replace('{}', username);
     const start = performance.now();
     const userAgent = USER_AGENTS[Math.floor(Math.random() * USER_AGENTS.length)];
+    const controller = new AbortController();
+    const onAbort = () => {
+        try {
+            controller.abort();
+        } catch {
+            // ignore
+        }
+    };
 
     try {
-        const controller = new AbortController();
-        const timeoutMs = 4500;
-        const timeoutId = setTimeout(() => {
-            try {
-                controller.abort();
-            } catch {
-                // ignore
-            }
-        }, timeoutMs);
+        const fetchTimeoutMs = typeof timeoutMs === 'number' && Number.isFinite(timeoutMs)
+            ? Math.max(250, Math.min(4500, Math.floor(timeoutMs)))
+            : 4500;
+        const sniffTimeoutMs = Math.max(250, Math.min(1500, fetchTimeoutMs - 250));
 
-        let response;
-        try {
-            response = await fetch(url, {
+        if (signal) {
+            if (signal.aborted) onAbort();
+            else signal.addEventListener('abort', onAbort, { once: true });
+        }
+
+        const fetchPromise = fetch(url, {
             method: config.method,
             headers: {
                 'User-Agent': userAgent,
@@ -108,16 +122,29 @@ async function checkPlatform(name, config, username) {
                 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8'
             },
             signal: controller.signal,
-            redirect: 'follow',
-            size: 65000
-            });
-        } catch (e) {
-            if (e?.name === 'AbortError') {
-                throw new Error('FETCH_TIMEOUT');
-            }
-            throw e;
+            redirect: 'follow'
+        });
+        void fetchPromise.catch(() => {});
+
+        let timeoutId;
+        const timeoutPromise = new Promise((_, reject) => {
+            timeoutId = setTimeout(() => {
+                onAbort();
+                reject(new Error('FETCH_TIMEOUT'));
+            }, fetchTimeoutMs);
+        });
+
+        let response;
+        try {
+            response = await Promise.race([fetchPromise, timeoutPromise]);
         } finally {
-            clearTimeout(timeoutId);
+            if (timeoutId) clearTimeout(timeoutId);
+        }
+
+        if (response?.body && typeof response.body.once === 'function') {
+            response.body.once('error', () => {});
+        } else if (response?.body && typeof response.body.on === 'function') {
+            response.body.on('error', () => {});
         }
 
         const duration = Math.round(performance.now() - start);
@@ -128,8 +155,25 @@ async function checkPlatform(name, config, username) {
             if (finalUrl !== url && classifyChallengeUrl(finalUrl)) {
                 status = 'rate-limited';
             } else {
-                const notFound = await sniffNotFound(name, response);
-                status = notFound === true ? 'available' : 'taken';
+                const sniffPromise = sniffNotFound(name, response);
+                void sniffPromise.catch(() => {});
+
+                let sniffTimeoutId;
+                const sniffTimeoutPromise = new Promise((_, reject) => {
+                    sniffTimeoutId = setTimeout(() => {
+                        onAbort();
+                        reject(new Error('SNIFF_TIMEOUT'));
+                    }, sniffTimeoutMs);
+                });
+
+                try {
+                    const notFound = await Promise.race([sniffPromise, sniffTimeoutPromise]);
+                    status = notFound === true ? 'available' : 'taken';
+                } catch (e) {
+                    status = e?.message === 'SNIFF_TIMEOUT' ? 'rate-limited' : 'error';
+                } finally {
+                    if (sniffTimeoutId) clearTimeout(sniffTimeoutId);
+                }
             }
         } else if (response.status === 404) {
             status = 'available';
@@ -152,11 +196,20 @@ async function checkPlatform(name, config, username) {
             responseTime: Math.round(performance.now() - start),
             error: error?.message || String(error)
         };
+    } finally {
+        if (signal) {
+            try {
+                signal.removeEventListener('abort', onAbort);
+            } catch {
+                // ignore
+            }
+        }
     }
 }
 
-export const runAliasFinder = async (username) => {
+export const runAliasFinder = async (username, options = {}) => {
     if (!username) throw new Error('Username is required');
+    const signal = options?.signal;
 
     // Check Cache
     const cacheKey = `alias:${username.toLowerCase()}`;
@@ -170,11 +223,50 @@ export const runAliasFinder = async (username) => {
 
     console.log(`[AliasFinder] Checking username: ${username} across ${Object.keys(PLATFORMS).length} platforms...`);
 
-    // Parallel execution with concurrency control
-    const platformNames = Object.keys(PLATFORMS);
-    const results = await Promise.all(
-        platformNames.map(name => checkPlatform(name, PLATFORMS[name], username))
-    );
+    const entries = Object.entries(PLATFORMS);
+    const results = [];
+
+    const overallTimeoutMs = 14000;
+    const deadline = Date.now() + overallTimeoutMs;
+    const concurrency = 4;
+    let cursor = 0;
+
+    const worker = async () => {
+        while (cursor < entries.length) {
+            if (signal?.aborted) break;
+            const i = cursor++;
+            const [name, config] = entries[i];
+            const remaining = deadline - Date.now();
+            if (remaining <= 0) {
+                results[i] = {
+                    platform: name,
+                    status: 'rate-limited',
+                    url: config.url.replace('{}', username),
+                    responseTime: 0,
+                    error: 'OVERALL_TIMEOUT'
+                };
+                continue;
+            }
+
+            const perPlatformBudget = Math.max(250, Math.min(4500, remaining - 50));
+            results[i] = await checkPlatform(name, config, username, { signal, timeoutMs: perPlatformBudget });
+        }
+    };
+
+    await Promise.all(Array.from({ length: Math.min(concurrency, entries.length) }, worker));
+
+    for (let i = 0; i < entries.length; i++) {
+        if (!results[i]) {
+            const [name, config] = entries[i];
+            results[i] = {
+                platform: name,
+                status: 'rate-limited',
+                url: config.url.replace('{}', username),
+                responseTime: 0,
+                error: signal?.aborted ? 'ABORTED' : 'OVERALL_TIMEOUT'
+            };
+        }
+    }
 
     const takenCount = results.filter(r => r.status === 'taken').length;
     const availableCount = results.filter(r => r.status === 'available').length;

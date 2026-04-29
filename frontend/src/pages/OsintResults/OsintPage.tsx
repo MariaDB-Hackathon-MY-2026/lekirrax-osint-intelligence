@@ -224,6 +224,143 @@ const LeakResult = React.memo(({ data }: { data: any }) => {
 
 LeakResult.displayName = 'LeakResult';
 
+const PhishingResult = React.memo(({ data }: { data: any }) => {
+    const url = typeof data?.url === 'string' ? data.url : null;
+    const score = typeof data?.phishing_score === 'number' ? data.phishing_score : null;
+    const safeStatus = typeof data?.safe_browsing_status === 'string' ? data.safe_browsing_status : null;
+    const recommendation = typeof data?.recommendation === 'string' ? data.recommendation : null;
+    const indicators = Array.isArray(data?.indicators) ? data.indicators.filter((v: any) => typeof v === 'string') : [];
+
+    const scoreValue = score == null ? null : Math.max(0, Math.min(100, score));
+    const scoreLabel =
+        scoreValue == null ? 'Unknown' : scoreValue >= 70 ? 'Critical' : scoreValue >= 40 ? 'High' : scoreValue >= 20 ? 'Medium' : 'Low';
+
+    return (
+        <div className="phish-result" aria-label="Phishing detection results">
+            <div className="phish-grid">
+                <section className="phish-card" aria-label="Phishing summary">
+                    <div className="phish-card-title">Summary</div>
+                    <div className="phish-kpi-row">
+                        <div className="phish-kpi">
+                            <div className="phish-kpi-label">Target</div>
+                            <div className="phish-kpi-value phish-kpi-value--mono">{url ?? '—'}</div>
+                        </div>
+                        <div className="phish-kpi">
+                            <div className="phish-kpi-label">Score</div>
+                            <div className="phish-kpi-value">
+                                {scoreValue == null ? '—' : `${scoreValue}/100`}
+                                <span className="phish-kpi-pill" data-level={scoreLabel}>
+                                    {scoreLabel}
+                                </span>
+                            </div>
+                            <div className="phish-meter" role="img" aria-label="Phishing score meter">
+                                <div className="phish-meter-fill" style={{ width: `${scoreValue ?? 0}%` }} data-level={scoreLabel} />
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section className="phish-card" aria-label="Safety status">
+                    <div className="phish-card-title">Safety</div>
+                    <div className="phish-kv">
+                        <div className="k">Safe browsing</div>
+                        <div className="v">{safeStatus ?? '—'}</div>
+                        <div className="k">Recommendation</div>
+                        <div className="v">
+                            <span className="phish-reco" data-level={scoreLabel}>
+                                {recommendation ?? '—'}
+                            </span>
+                        </div>
+                    </div>
+                </section>
+
+                <section className="phish-card" aria-label="Indicators list">
+                    <div className="phish-card-title">Indicators</div>
+                    {indicators.length ? (
+                        <ul className="phish-list">
+                            {indicators.map((t: string, i: number) => (
+                                <li key={`${t}-${i}`}>{t}</li>
+                            ))}
+                        </ul>
+                    ) : (
+                        <div className="phish-empty">No indicators returned.</div>
+                    )}
+                </section>
+            </div>
+        </div>
+    );
+});
+
+PhishingResult.displayName = 'PhishingResult';
+
+const EmailValidationResult = React.memo(({ data }: { data: any }) => {
+    const email = typeof data?.email === 'string' ? data.email : null;
+    const domain = typeof data?.domain === 'string' ? data.domain : null;
+    const validSyntax = data?.valid_syntax;
+    const disposable = data?.is_disposable;
+    const deliverable = typeof data?.deliverable === 'string' ? data.deliverable : null;
+    const breachCount = typeof data?.breach_count === 'number' ? data.breach_count : null;
+    const mxRecords = Array.isArray(data?.mx_records) ? data.mx_records.filter((v: any) => typeof v === 'string') : [];
+
+    const deliverablePill =
+        deliverable?.toLowerCase() === 'likely' ? 'pill pill--ok' : deliverable?.toLowerCase() === 'unlikely' ? 'pill pill--bad' : 'pill';
+    const boolPill = (v: any) => (v === true ? 'pill pill--ok' : v === false ? 'pill pill--bad' : 'pill');
+
+    return (
+        <div className="email-result" aria-label="Email validation results">
+            <div className="email-grid">
+                <section className="email-card" aria-label="Email summary">
+                    <div className="email-card-title">Summary</div>
+                    <div className="email-kv">
+                        <div className="k">Email</div>
+                        <div className="v">{email ?? '—'}</div>
+                        <div className="k">Domain</div>
+                        <div className="v">{domain ?? '—'}</div>
+                        <div className="k">Syntax</div>
+                        <div className="v">
+                            <span className={boolPill(validSyntax)}>{formatBool(validSyntax)}</span>
+                        </div>
+                        <div className="k">Disposable</div>
+                        <div className="v">
+                            <span className={boolPill(disposable)}>{formatBool(disposable)}</span>
+                        </div>
+                        <div className="k">Deliverable</div>
+                        <div className="v">
+                            <span className={deliverablePill}>{deliverable ?? 'Unknown'}</span>
+                        </div>
+                        <div className="k">Breach count</div>
+                        <div className="v">{breachCount ?? '—'}</div>
+                    </div>
+                </section>
+
+                <section className="email-card" aria-label="MX records">
+                    <div className="email-card-title">MX Records</div>
+                    {mxRecords.length ? (
+                        <ul className="email-list">
+                            {mxRecords.map((m: string, i: number) => (
+                                <li key={`${m}-${i}`}>
+                                    <code className="email-mx">{m}</code>
+                                </li>
+                            ))}
+                        </ul>
+                    ) : (
+                        <div className="email-empty">No MX records found.</div>
+                    )}
+                </section>
+
+                <section className="email-card" aria-label="Note">
+                    <div className="email-card-title">Note</div>
+                    <div className="email-note">
+                        This module validates format and domain mail exchange records. It does not verify mailbox ownership or attempt SMTP inbox probing.
+                    </div>
+                </section>
+            </div>
+        </div>
+    );
+});
+
+EmailValidationResult.displayName = 'EmailValidationResult';
+
 const OsintPage: React.FC<OsintPageProps> = ({ onBack }) => {
     const [activeTab, setActiveTab] = useState('phishing');
     const [target, setTarget] = useState('');
@@ -608,6 +745,14 @@ const OsintPage: React.FC<OsintPageProps> = ({ onBack }) => {
                                         <div className="osint-phone-pretty">
                                             <PhoneResult data={result.data} />
                                         </div>
+                                    ) : activeTab === 'phishing' ? (
+                                        <div className="osint-phish-pretty">
+                                            <PhishingResult data={result.data} />
+                                        </div>
+                                    ) : activeTab === 'email' ? (
+                                        <div className="osint-email-pretty">
+                                            <EmailValidationResult data={result.data} />
+                                        </div>
                                     ) : activeTab === 'leak' ? (
                                         <div className="osint-leak-pretty">
                                             <LeakResult data={result.data} />
@@ -615,7 +760,12 @@ const OsintPage: React.FC<OsintPageProps> = ({ onBack }) => {
                                     ) : (
                                         <JsonViewer value={result.data} mode="tree" />
                                     )}
-                                    {(activeTab === 'social' || activeTab === 'dorking' || activeTab === 'phone' || activeTab === 'leak') && (
+                                    {(activeTab === 'social' ||
+                                        activeTab === 'dorking' ||
+                                        activeTab === 'phone' ||
+                                        activeTab === 'leak' ||
+                                        activeTab === 'phishing' ||
+                                        activeTab === 'email') && (
                                         <div className="osint-json-secondary">
                                             <div className="osint-json-secondary-title">Full JSON</div>
                                             <JsonViewer value={result.data} mode="tree" />

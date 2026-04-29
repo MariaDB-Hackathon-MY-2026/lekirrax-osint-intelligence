@@ -5,18 +5,23 @@ const major = Number.isFinite(maj) ? maj : 0;
 const minor = Number.isFinite(min) ? min : 0;
 const patch = Number.isFinite(pat) ? pat : 0;
 
-if (major < 20) {
+const requiredMajor = 22;
+const requiredMinor = 12;
+
+const tooOld =
+  major < requiredMajor || (major === requiredMajor && minor < requiredMinor);
+
+if (tooOld) {
   process.stderr.write(
     [
-      `LekirraX requires Node.js >= 20.`,
+      `LekirraX requires Node.js >= 22.12.0.`,
       `Detected Node.js ${major}.${minor}.${patch}.`,
       ``,
-      `Reason: some dependencies rely on Web APIs (like global File) that are not available in Node 18, which can crash at startup.`,
+      `Reason: frontend tooling (Vite) and some dependencies require modern Web APIs and ESM behavior.`,
       ``,
-      `Fix: install Node.js 20+ (LTS) and run "npm install" again, then "npm start".`,
+      `Fix: install Node.js 22 LTS (recommended) and run "npm install" again, then "npm start".`,
       ``
     ].join('\n')
   );
   process.exit(1);
 }
-

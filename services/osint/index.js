@@ -39,7 +39,7 @@ async function getCachedResult(moduleName, target) {
     return null;
 }
 
-export const runOsintModule = async (moduleName, target) => {
+export const runOsintModule = async (moduleName, target, options = {}) => {
     const runner = modules[moduleName];
     if (!runner) {
         throw new Error(`OSINT module '${moduleName}' not found`);
@@ -51,7 +51,7 @@ export const runOsintModule = async (moduleName, target) => {
 
     // Execute with performance monitoring
     const start = performance.now();
-    const result = await runner(target);
+    const result = await runner(target, options);
     const end = performance.now();
     
     console.log(`[OSINT] Module ${moduleName} took ${(end - start).toFixed(2)}ms`);

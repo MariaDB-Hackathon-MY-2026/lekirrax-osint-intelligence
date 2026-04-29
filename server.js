@@ -666,12 +666,27 @@ app.get('/api/osint/:module', authenticateToken, async (req, res) => {
         let data;
         try {
             const timeoutMs = 20000;
-            data = await Promise.race([
-                runOsintModule(module, target),
-                new Promise((_, reject) =>
-                    setTimeout(() => reject(new Error('OSINT_TIMEOUT')), timeoutMs)
-                )
-            ]);
+            const controller = new AbortController();
+            const runPromise = runOsintModule(module, target, { signal: controller.signal });
+            void runPromise.catch(() => {});
+
+            let timeoutId;
+            const timeoutPromise = new Promise((_, reject) => {
+                timeoutId = setTimeout(() => {
+                    try {
+                        controller.abort();
+                    } catch {
+                        // ignore
+                    }
+                    reject(new Error('OSINT_TIMEOUT'));
+                }, timeoutMs);
+            });
+
+            try {
+                data = await Promise.race([runPromise, timeoutPromise]);
+            } finally {
+                if (timeoutId) clearTimeout(timeoutId);
+            }
         } catch (e) {
             const msg = e?.message || 'OSINT module failed';
             void saveOsintActivity({
