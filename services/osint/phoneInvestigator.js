@@ -8,44 +8,47 @@ const __dirname = path.dirname(__filename);
 
 let pythonLookupSupported = null;
 
-async function runPythonPhoneLookup(e164) {
+function getPythonTimeoutMs(overrideMs) {
+    if (Number.isFinite(Number(overrideMs))) return Math.max(250, Number(overrideMs));
+    const raw = process.env.PHONE_PY_TIMEOUT_MS;
+    const n = Number(raw);
+    return Number.isFinite(n) ? Math.max(250, n) : 5000;
+}
+
+async function runPythonPhoneLookup(e164, { timeoutMs } = {}) {
     if (!e164 || typeof e164 !== 'string') return null;
     if (pythonLookupSupported === false) return null;
     const scriptPath = path.join(__dirname, 'phone_lookup.py');
+    const pyTimeoutMs = getPythonTimeoutMs(timeoutMs);
     const candidates = [
-        { cmd: 'python', args: [scriptPath, e164] },
-        { cmd: 'py', args: ['-3', scriptPath, e164] }
+        { cmd: 'python', baseArgs: [scriptPath] },
+        { cmd: 'python3', baseArgs: [scriptPath] },
+        { cmd: 'py', baseArgs: ['-3', scriptPath] }
     ];
 
-    const run = (cmd, args) =>
+    const run = (cmd, baseArgs) =>
         new Promise((resolve) => {
-            const child = spawn(cmd, args, { stdio: ['ignore', 'pipe', 'pipe'] });
+            const child = spawn(cmd, [...baseArgs, e164], { stdio: ['ignore', 'pipe', 'pipe'] });
             let out = '';
-            let err = '';
             const timer = setTimeout(() => {
                 try {
                     child.kill();
                 } catch {
                     // ignore
                 }
-                pythonLookupSupported = false;
                 resolve(null);
-            }, 1200);
+            }, pyTimeoutMs);
 
             child.stdout.on('data', (d) => {
                 out += d.toString('utf8');
             });
-            child.stderr.on('data', (d) => {
-                err += d.toString('utf8');
-            });
-            child.on('error', () => {
+            child.on('error', (err) => {
                 clearTimeout(timer);
-                pythonLookupSupported = false;
-                resolve(null);
+                resolve({ __error: err });
             });
             child.on('close', () => {
                 clearTimeout(timer);
-                const text = (out || err || '').trim();
+                const text = (out || '').trim();
                 if (!text) return resolve(null);
                 try {
                     const parsed = JSON.parse(text);
@@ -58,14 +61,20 @@ async function runPythonPhoneLookup(e164) {
             });
         });
 
+    let missingCount = 0;
     for (const c of candidates) {
-        const res = await run(c.cmd, c.args);
+        const res = await run(c.cmd, c.baseArgs);
+        if (res && typeof res === 'object' && '__error' in res) {
+            if (res.__error && res.__error.code === 'ENOENT') missingCount += 1;
+            continue;
+        }
         if (res) return res;
     }
+    if (missingCount === candidates.length) pythonLookupSupported = false;
     return null;
 }
 
-export const runPhoneInvestigator = async (target) => {
+export const runPhoneInvestigator = async (target, options = {}) => {
     const raw = typeof target === 'string' ? target : String(target ?? '');
     const normalizedDigits = raw.replace(/\D/g, '');
     const canonicalInput = raw.trim().startsWith('+') ? `+${normalizedDigits}` : raw.trim();
@@ -87,8 +96,8 @@ export const runPhoneInvestigator = async (target) => {
         numberType = null;
     }
 
-    const pyLookupEnabled = process.env.PHONE_PY_LOOKUP === '1';
-    const py = pyLookupEnabled && e164 ? await runPythonPhoneLookup(e164) : null;
+    const pyLookupEnabled = options?.pyLookupEnabled ?? process.env.PHONE_PY_LOOKUP === '1';
+    const py = pyLookupEnabled && e164 ? await runPythonPhoneLookup(e164, { timeoutMs: options?.pyTimeoutMs }) : null;
     const carrierName = typeof py?.carrier === 'string' && py.carrier.trim() ? py.carrier.trim() : null;
     const timeZones = Array.isArray(py?.time_zones) ? py.time_zones.filter((z) => typeof z === 'string') : [];
     const description = typeof py?.description === 'string' && py.description.trim() ? py.description.trim() : null;
