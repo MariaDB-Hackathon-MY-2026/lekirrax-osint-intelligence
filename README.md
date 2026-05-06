@@ -8,11 +8,12 @@ LekirraX is a powerful cybersecurity platform designed for Open Source Intellige
 ![Node](https://img.shields.io/badge/node-%3E%3D22.12.0-green.svg)
 ![React](https://img.shields.io/badge/react-18-cyan.svg)
 
-## Author
+## 👨‍💻 Maintainer / Author
 
-MUHAMMAD HANIF BIN MOHAMAD NIZAM
- 
-([@devnifyx](https://github.com/devnifyx))
+👤 **Name:** Muhammad Hanif Bin Mohamad Nizam  
+🎓 **University:** Universiti Poly-Tech Malaysia (UPTM)  
+📧 **Email:** kl2412017978@student.uptm.edu.my  
+💻 **GitHub:** [@devnifyx](https://github.com/devnifyx)
 
 ## Key Features
 
@@ -111,11 +112,11 @@ LekirraX stores scans, OSINT investigations, and analyst activity in MariaDB to 
 - `systems.scan_id` → `scans.id`
 - `ports.system_id` → `systems.id`
 - `osint_results.scan_id` → `scans.id`
-- `osint_activity.scan_id` → `scans.id` (nullable, for OSINT runs not tied to a scan)
+- `osint_activity.scan_id` → `scans.id` 
 - `user_interactions.user_id` → `users.id`
 - `recommendation_cache.user_id` → `users.id`
 
-### Important columns (high level)
+### Important columns
 
 **`scans`**
 - `target` (VARCHAR): domain/IP scanned
@@ -307,20 +308,6 @@ If you change Vite proxy settings for `/ws`, restart the frontend dev server.
   - `GET /api/dashboard/threat-map` (fallback)
   - `WS /ws/threat-map` (live feed)
 
-## Logs
-
-Runtime logs are written to `logs/` (ignored by git):
-- `logs/combined.log`: request/access logs
-- `logs/error.log`: error logs
-
-## Troubleshooting
-
-- **Scan failed: Unauthorized**
-  - You must login first (dev: `admin/admin`). If it still happens, clear `localStorage` token and login again.
-- **OSINT module '...' not found**
-  - Restart the backend after adding or changing OSINT modules.
-- **Threat stream connection error**
-  - Ensure backend is running and restart the frontend dev server after changing proxy config. The map should still work via HTTP fallback (`/api/dashboard/threat-map`).
 
 ## Optional: Phone carrier & timezone enrichment
 
