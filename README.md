@@ -1,4 +1,6 @@
-# LekirraX - Advanced OSINT & Cyber Threat Intelligence Platform
+# LekirraX : An AI-Driven OSINT-Based Cyber Threat Intelligence and Analytics Sentinel System
+
+
 
 LekirraX is a powerful cybersecurity platform designed for Open Source Intelligence (OSINT) gathering, deep web scanning, and real-time cyber threat visualization. Built with a modern tech stack, it provides security researchers and penetration testers with a comprehensive suite of tools to analyze domains, track digital footprints, and monitor global threat activities.
 
