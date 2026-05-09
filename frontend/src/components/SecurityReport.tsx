@@ -119,16 +119,13 @@ const SecurityReport: React.FC<SecurityReportProps> = ({ analysis, loading, meta
     // Terminal-style loading
     if (loading) {
         return (
-            <div className="bg-gray-900 text-green-400 p-6 rounded-lg font-mono min-h-[300px] flex flex-col justify-center items-center border border-green-800 shadow-lg shadow-green-900/20">
-                <div className="animate-pulse text-xl mb-4">
-                    <span className="mr-2">⚡</span>
-                    INITIALIZING SENTINEL AI...
-                </div>
-                <div className="text-sm opacity-80">
-                    <p className="mb-1">&gt; Connecting to Neural Network...</p>
-                    <p className="mb-1 animate-[fadeIn_0.5s_ease-in-out_0.5s_forwards] opacity-0">&gt; Analyzing Attack Surface...</p>
-                    <p className="mb-1 animate-[fadeIn_0.5s_ease-in-out_1.0s_forwards] opacity-0">&gt; Calculating Threat Score...</p>
-                    <p className="mb-1 animate-[fadeIn_0.5s_ease-in-out_1.5s_forwards] opacity-0">&gt; Generating Remediation Plan...</p>
+            <div className="exec-summary__loading" aria-label="Generating executive summary">
+                <div className="exec-summary__loading-title">INITIALIZING REPORT…</div>
+                <div className="exec-summary__loading-lines" aria-hidden="true">
+                    <div>&gt; Connecting to analysis pipeline</div>
+                    <div>&gt; Analyzing attack surface</div>
+                    <div>&gt; Computing threat score</div>
+                    <div>&gt; Generating remediation plan</div>
                 </div>
             </div>
         );
@@ -151,12 +148,12 @@ const SecurityReport: React.FC<SecurityReportProps> = ({ analysis, loading, meta
 
     const getSeverityBadge = (severity: string) => {
         const colors: Record<string, string> = {
-            'Critical': 'bg-red-900/50 text-red-200 border-red-700',
-            'High': 'bg-orange-900/50 text-orange-200 border-orange-700',
-            'Medium': 'bg-yellow-900/50 text-yellow-200 border-yellow-700',
-            'Low': 'bg-green-900/50 text-green-200 border-green-700'
+            'Critical': 'sev sev--critical',
+            'High': 'sev sev--high',
+            'Medium': 'sev sev--medium',
+            'Low': 'sev sev--low'
         };
-        return colors[severity] || 'bg-gray-800 text-gray-300';
+        return colors[severity] || 'sev';
     };
 
     const onDownloadMarkdown = () => {
@@ -174,25 +171,24 @@ const SecurityReport: React.FC<SecurityReportProps> = ({ analysis, loading, meta
     };
 
     return (
-        <section ref={exportRef} className="exec-summary space-y-4" aria-label="Security executive summary">
-            <div className="exec-summary__hero bg-slate-800/80 rounded-xl p-6 border border-slate-700 backdrop-blur-md shadow-xl relative overflow-hidden group">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
-                <div className="flex flex-col md:flex-row items-start gap-8 relative z-10">
-                    <div className="flex flex-col items-center justify-center flex-shrink-0 min-w-[100px]">
-                        <div style={{ width: 100, height: 100 }} className="relative">
+        <section ref={exportRef} className="exec-summary" aria-label="Security executive summary">
+            <div className="exec-summary__hero">
+                <div className="exec-summary__hero-inner">
+                    <div className="exec-summary__meter">
+                        <div style={{ width: 100, height: 100 }}>
                             <CircularProgressbar
                                 value={(analysis.threat_level || 0) * 10}
                                 text={`${analysis.threat_level || 0}/10`}
                                 styles={buildStyles({
                                     pathColor: getRiskColor(analysis.threat_level || 0),
                                     textColor: '#fff',
-                                    trailColor: '#1e293b',
+                                    trailColor: 'rgba(148, 163, 184, 0.2)',
                                     textSize: '22px',
                                     pathTransitionDuration: 0.5,
                                 })}
                             />
                         </div>
-                        <p className="text-center mt-3 font-bold text-slate-400 text-xs tracking-widest uppercase">Threat Level</p>
+                        <div className="exec-summary__meter-label">Threat Level</div>
                         <div
                             className="exec-summary__risk-pill mt-2"
                             style={{ borderColor: `${getRiskColor(analysis.threat_level || 0)}55` }}
@@ -205,7 +201,7 @@ const SecurityReport: React.FC<SecurityReportProps> = ({ analysis, loading, meta
                         </div>
                     </div>
 
-                    <div className="flex-1 pt-2">
+                    <div className="exec-summary__content">
                         <div className="exec-summary__toolbar">
                             <div className="exec-summary__heading">
                                 <h2 className="exec-summary__title">
@@ -231,7 +227,7 @@ const SecurityReport: React.FC<SecurityReportProps> = ({ analysis, loading, meta
                                 </button>
                             </div>
                         </div>
-                        <div className="exec-summary__markdown prose prose-invert max-w-none text-slate-300 leading-relaxed text-sm md:text-base border-l-4 border-slate-600 pl-4 bg-slate-800/30 py-3 rounded-r-lg">
+                        <div className="exec-summary__markdown">
                             <Markdown
                                 components={{
                                     h1: ({ children, ...props }) => <h3 {...props} className="exec-summary__h">{children}</h3>,
@@ -252,47 +248,47 @@ const SecurityReport: React.FC<SecurityReportProps> = ({ analysis, loading, meta
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="bg-slate-800/80 rounded-xl p-6 border border-slate-700 backdrop-blur-sm shadow-lg hover:border-slate-600 transition-colors">
-                    <h3 className="text-lg font-bold text-white mb-5 flex items-center border-b border-slate-700 pb-3">
-                        <span className="mr-3 text-xl">⚠️</span> Top Vulnerabilities
+            <div className="exec-summary__grid">
+                <div className="exec-summary__panel">
+                    <h3 className="exec-summary__panel-title">
+                        <span aria-hidden="true">⚠️</span> Top Vulnerabilities
                     </h3>
-                    <div className="space-y-4">
+                    <div className="exec-summary__panel-body">
                         {(analysis.vulnerabilities || []).map((vuln, idx) => (
-                            <div key={idx} className="bg-slate-900/50 p-4 rounded-lg border border-slate-800 hover:border-slate-600 transition-all group">
-                                <div className="flex justify-between items-start mb-2">
-                                    <h4 className="font-semibold text-white text-sm group-hover:text-cyan-400 transition-colors">{vuln.title}</h4>
-                                    <span className={`text-[10px] px-2 py-0.5 rounded border font-medium tracking-wide ${getSeverityBadge(vuln.severity)}`}>
+                            <div key={idx} className="exec-summary__item">
+                                <div className="exec-summary__item-head">
+                                    <h4 className="exec-summary__item-title">{vuln.title}</h4>
+                                    <span className={`exec-summary__sev ${getSeverityBadge(vuln.severity)}`}>
                                         {(vuln.severity || 'Unknown').toUpperCase()}
                                     </span>
                                 </div>
-                                <p className="text-xs text-slate-300/80 leading-relaxed exec-summary__vuln">{vuln.description}</p>
+                                <p className="exec-summary__vuln">{vuln.description}</p>
                             </div>
                         ))}
                         {(!analysis.vulnerabilities || analysis.vulnerabilities.length === 0) && (
-                            <div className="text-center py-8 text-slate-500 italic flex flex-col items-center">
-                                <span className="text-2xl mb-2">✅</span>
+                            <div className="exec-summary__empty">
+                                <span aria-hidden="true">✅</span>
                                 No significant vulnerabilities detected.
                             </div>
                         )}
                     </div>
                 </div>
 
-                <div className="bg-slate-800/80 rounded-xl p-6 border border-slate-700 backdrop-blur-sm shadow-lg hover:border-slate-600 transition-colors">
-                    <h3 className="text-lg font-bold text-white mb-5 flex items-center border-b border-slate-700 pb-3">
-                        <span className="mr-3 text-xl">🔧</span> Remediation Plan
+                <div className="exec-summary__panel">
+                    <h3 className="exec-summary__panel-title">
+                        <span aria-hidden="true">🔧</span> Remediation Plan
                     </h3>
-                    <div className="space-y-4">
+                    <div className="exec-summary__panel-body">
                         {(analysis.remediation || []).map((step, idx) => (
-                            <div key={idx} className="flex items-start gap-4 text-sm text-slate-300 group">
-                                <span className="bg-slate-700/50 text-cyan-400 border border-slate-600 rounded-full w-6 h-6 flex items-center justify-center text-xs font-mono flex-shrink-0 mt-0.5 group-hover:bg-cyan-900/30 group-hover:border-cyan-700 transition-colors">
+                            <div key={idx} className="exec-summary__step">
+                                <span className="exec-summary__step-idx">
                                     {idx + 1}
                                 </span>
-                                <span className="leading-relaxed pt-0.5">{step}</span>
+                                <span className="exec-summary__step-text">{step}</span>
                             </div>
                         ))}
                          {(!analysis.remediation || analysis.remediation.length === 0) && (
-                            <div className="text-center py-8 text-slate-500 italic">
+                            <div className="exec-summary__empty">
                                 No specific remediation steps provided.
                             </div>
                         )}
